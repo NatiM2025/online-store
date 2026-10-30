@@ -1,5 +1,8 @@
 package com.pluralsight;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -23,7 +26,7 @@ public class Store {
 
         // Load inventory from the data file (pipe-delimited: SKU|Product Name|Price|Department)
         loadInventory("products.csv", inventory);
-
+        System.out.println(inventory);
         // Main menu loop
         Scanner scanner = new Scanner(System.in);
         int choice = -1;
@@ -60,11 +63,29 @@ public class Store {
      * Example line:
      * AV1051|JBL Bluetooth Speaker|89.95|Audio Video
      */
+
     public static void loadInventory(String fileName, ArrayList<Product> inventory) {
         // TODO: skip the header line, then read each line, split on "|",
         //       create a Product object, and add it to the inventory list
-    }
+        try {
+            BufferedReader bufferedReader =new BufferedReader(new FileReader(fileName));
+            bufferedReader.readLine();
+            System.out.println();
+            String line;
+            while ((line = bufferedReader.readLine()) != null){
+                String[] token = line.split("\\|");
+                String sku = token[0];
+                String name = token[1];
+                double price = Double.parseDouble(token[2]);
+                String department = token[3];
+                Product product =new Product(sku,name,price,department);
+                inventory.add( product);
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong  " + e);
+        }
 
+    }
     /**
      * Displays all products and lets the user add one to the cart.
      * Typing X returns to the main menu.
