@@ -1,10 +1,11 @@
 package com.pluralsight;
 
+import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.SortedMap;
 
 /**
  * Starter code for the Online Store workshop.
@@ -26,7 +27,6 @@ public class Store {
 
         // Load inventory from the data file (pipe-delimited: SKU|Product Name|Price|Department)
         loadInventory("products.csv", inventory);
-        System.out.println(inventory);
         // Main menu loop
         Scanner scanner = new Scanner(System.in);
         int choice = -1;
@@ -95,6 +95,30 @@ public class Store {
                                        Scanner scanner) {
         // TODO: show each product (id, name, price),
         //       prompt for an id, find that product, add to cart
+        System.out.println("==== Products ====");
+        System.out.println();
+        for (Product product : inventory){
+            System.out.println(product.getSku() + " " + product.getProductName() + " " + product.getDepartment() + " " + "$" + product.getPrice() );
+        }
+        boolean added = false;
+        boolean exit = false;
+        while(!exit) {
+            System.out.println("chose product using the sku code or 'X' to exit\nYour choice: ");
+            String userChoice = scanner.nextLine();
+            if (!userChoice.equalsIgnoreCase("x")) {
+                for (Product product : inventory) {
+                    if (product.getSku().equals(userChoice)) {
+                        cart.add(product);
+                        System.out.println(product.getProductName() + " added to your cart ");
+                        added = true;
+                    }
+                }
+                if(!added){System.out.println("No product on this sku: " + userChoice);}
+            } else if (userChoice.equalsIgnoreCase("x")) {
+                exit = true;
+
+            }
+        }
     }
 
     /**
@@ -107,6 +131,18 @@ public class Store {
         //   • compute the total cost
         //   • ask the user whether to check out (C) or return (X)
         //   • if C, call checkOut(cart, totalAmount, scanner)
+        double totalPrice = 0;
+            for (Product product : cart ){
+                totalPrice += product.getPrice();
+                System.out.println(product.getProductName());
+                System.out.println("Total: " + totalPrice);
+            }
+        System.out.println("(C) to check out or anything to exit");
+           String userInput = scanner.nextLine();
+            if (userInput.equalsIgnoreCase("c")){
+                checkOut(cart,totalPrice,scanner);
+        }
+
     }
 
     /**
@@ -120,6 +156,36 @@ public class Store {
                                 double totalAmount,
                                 Scanner scanner) {
         // TODO: implement steps listed above
+
+        System.out.println("Your total will be: " + "$" + totalAmount + "\nWould you like to buy (Y) to confirm or anything to cancel? ");
+        String userInput = scanner.nextLine();
+        double change;
+        if (userInput.equalsIgnoreCase("y")){
+            System.out.print("Pleas enter payment amount:");
+            Double userPayment = scanner.nextDouble();
+            scanner.nextLine();
+            if (userPayment < totalAmount){
+                System.out.println("Sorry you need " + "$" + (totalAmount - userPayment) + " More to cover the total of " + "$" + totalAmount);
+            }else if (userPayment > totalAmount){
+                change = userPayment-totalAmount;
+                System.out.println("Thank you for shopping ");
+                for (Product product : cart){
+                    System.out.println(product.getSku() + " " + product.getProductName() + " " + product.getDepartment() + " " + "$" + product.getPrice() );
+                }
+                System.out.println("Total Payment: $" + totalAmount + " With a change of: $" + change);
+            }else if (totalAmount <= 0 ){
+                System.out.println("Empty cart!");
+            }
+            else {
+                System.out.println("Thank you for shopping");
+                System.out.println("You ordered: ");
+                for (Product product : cart){
+                    System.out.println(product.getSku() + " " + product.getProductName() + " " + product.getDepartment() + " " + "$" + product.getPrice() );
+                }
+
+
+            }
+        }cart.clear();
     }
 
     /**
